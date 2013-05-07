@@ -1,33 +1,6 @@
 
 package random
 
-import "math/rand"
-import "time"
-//import "log"
-
-
-//
-// Have we seeded the random number generator?
-//
-var seeded bool = false;
-
-
-/**
-* Return a random number between 1 and n
-* @param {integer} n The maximum random number.
-* @return {integer} retval The random value
-*/
-func Intn(n int) (retval int) {
-
-	if (!seeded) {
-		rand.Seed(time.Now().UnixNano())
-	}
-
-	retval = rand.Intn(n)
-	return(retval)
-
-} // End of Intn()
-
 
 /**
 * Create background processes and pass out channels into them.
@@ -50,7 +23,8 @@ func IntnBackground(out chan int, max int, num_numbers int, num_goroutines int) 
 	// So I learned something new about how random numbers are generated.
 	//
 	for i := 0; i < num_goroutines; i++ {
-		go intNChannel(in, out)
+		random_struct := random_struct{false}
+		go random_struct.intNChannel(in, out)
 	}
 
 	//
@@ -61,38 +35,6 @@ func IntnBackground(out chan int, max int, num_numbers int, num_goroutines int) 
 	}
 
 } // End of IntnBackground()
-
-
-/**
-* Read a request off of a channel, generate a random value, and write 
-* it back out.
-*
-* @param {chan int} in Our channel to read in requests. Each value 
-*	read is the maximum random number.
-* @param {chan int} out The channel to write results out to.
-*/
-func intNChannel(in chan int, out chan int) {
-
-	//timeout := time.Millisecond * 100
-
-	//
-	// This will loop forever
-	//
-	for {
-
-		select {
-			case max := <-in:
-				i := Intn(max)
-				out <- i
-
-			//case <-time.After(timeout):
-			//	log.Println("TIMEOUT")
-
-		}
-
-	}
-
-} // End of intNChannel()
 
 
 
