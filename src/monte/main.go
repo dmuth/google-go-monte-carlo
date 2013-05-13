@@ -56,19 +56,13 @@ func New(size uint64, num_points int, num_goroutines int) (monte) {
 func (m monte) Main(config args.Config) float64 {
 
 	out_check_points := make(chan uint64)
-	in_calculate_pi := make(chan bool)
-	out := make(chan float64)
+	pi := make(chan float64)
 
 
 	//
 	// Goroutine to create points from random numbers
 	//
-	go m.getPoints(out_check_points, in_calculate_pi)
-
-	//
-	// Goroutine to calculate our value of Pi when we're done.
-	//
-	go m.calculatePi(in_calculate_pi, out)
+	go m.getPoints(out_check_points, pi)
 
 	//
 	// Start generating our points!
@@ -85,7 +79,8 @@ func (m monte) Main(config args.Config) float64 {
 	//
 	// Read our value of Pi when we're all done!
 	//
-	retval := <- out
+	retval := <- pi
+
 	return(retval)
 
 } // End of Main()
@@ -96,7 +91,7 @@ func (m monte) Main(config args.Config) float64 {
 * @param {chan} in Inbound channel which feeds us random numbers.
 * @param {chan} out Outbound channel which takes an array of two points.
 */
-func (m *monte) getPoints(in chan uint64, out chan bool) {
+func (m *monte) getPoints(in chan uint64, out chan float64) {
 
 	for {
 		x := <- in
@@ -112,7 +107,12 @@ func (m *monte) getPoints(in chan uint64, out chan bool) {
 			m.num_points_not_in_circle++
 		}
 
-		out <- true
+		m.num_points_left--
+		if (m.num_points_left == 0) {
+			pi := m.calculatePi()
+			out <- pi
+		}
+
 
 	}
 
@@ -120,33 +120,15 @@ func (m *monte) getPoints(in chan uint64, out chan bool) {
 
 
 /**
-* Calculate Pi from our set of points.
+* Calculate Pi based on our points in or out of the circle
 *
-* @param {chan} in Useless booleans are read from this. 
-*	On each read, we know that another set of points 
-*	has been generated.
-* @param {chan} out When we're all done, send our value of Pi here.
+* @return {float64} The value of Pi
 */
-func (m *monte) calculatePi(in chan bool, out chan float64) {
+func (m *monte) calculatePi() (float64) {
 
-	for {
-
-		c := <- in
-		if (c) {}
-		m.num_points_left--
-
-		//log.Println("PI 2: ", pi)
-
-		//
-		// Do we have all of our points? Send our result out then.
-		//
-		if (m.num_points_left == 0) {
-			total := m.num_points_in_circle + m.num_points_not_in_circle
-			pi := ( float64(m.num_points_in_circle) / float64(total) ) * 4
-			out <- pi
-		}
-
-	}
+	total := m.num_points_in_circle + m.num_points_not_in_circle
+	retval := ( float64(m.num_points_in_circle) / float64(total) ) * 4
+	return(retval)
 
 } // End of calculatePIi()
 
