@@ -4,20 +4,18 @@
 */
 package args;
 
-import "fmt"
-import "strconv"
 import "flag"
 import "os"
 
+
 /**
-* Print our syntax diagram and exit.
+* Our config structure to hold whatever we parse
 */
-func PrintSyntax() {
-	fmt.Printf(
-		"Syntax: %s --size n --num-points n --num-cores n\n", 
-		os.Args[0])
-	flag.PrintDefaults()
-	os.Exit(1)
+type Config struct {
+	Size int
+	Num_points int
+	Num_goroutines int
+	Random_md5 bool
 }
 
 
@@ -25,48 +23,24 @@ func PrintSyntax() {
 * Loop through our arguments and parse them.
 * @return {map} A map of our array values
 */
-func ParseArgs() (map[string]string) {
+func ParseArgs() (Config) {
 
-	var params = make(map[string]string)
-	params["size"] = strconv.FormatInt(10, 10)
-	params["num_points"] = strconv.FormatInt(100, 10)
-	params["num_cores"] = strconv.FormatInt(2, 10)
+	config := Config{}
 
-	for i:=1; i<len(os.Args); i++ {
+	flag.IntVar(&config.Size, "size", 10, "How big to make the grid for the circle quadrant")
+	flag.IntVar(&config.Num_points, "num-points", 10, "How many points to plot?")
+	flag.IntVar(&config.Num_goroutines, "num-goroutines", 10, "How many goroutines to use for generating random numbers")
+	flag.BoolVar(&config.Random_md5, "random-md5", false, "Set to use MD5 for faux random number generation")
+	help := flag.Bool("help", false, "test2")
+	h := flag.Bool("h", false, "To get this help")
+	flag.Parse()
 
-		var arg = os.Args[i]
-		var arg_next string = ""
-		index_next := i+1
-		if (index_next < len(os.Args) && os.Args[index_next] != "") {
-			arg_next = os.Args[i+1]
-		}
-
-		//
-		// If the user asked for help, bail
-		//
-		if arg == "-h" {
-			PrintSyntax()
-
-		} else if arg == "--size" {
-			params["size"] = arg_next
-			i++
-
-		} else if arg == "--num-points" {
-			params["num_points"] = arg_next
-			i++
-
-		} else if arg == "--num-cores" {
-			params["num_cores"] = arg_next
-			i++
-
-		} else {
-			PrintSyntax()
-
-		}
-
+	if (*help || *h) {
+		flag.PrintDefaults()
+		os.Exit(1)
 	}
 
-	return(params)
+	return(config)
 
 } // End of ParseArgs()
 
