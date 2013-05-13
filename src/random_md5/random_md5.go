@@ -1,5 +1,9 @@
 
-package random
+package random_md5
+
+//import "fmt"
+import "strconv"
+import "time"
 
 
 /**
@@ -12,29 +16,43 @@ package random
 */
 func IntnBackground(out chan uint64, max uint64, num_numbers int, num_goroutines int) {
 
-	in := make(chan uint64)
+	in := make(chan []uint64)
 
 	//
 	// Create a number of background processes.
 	//
-	// Originally, I thought that this would get me lots of parallelism when
-	// generating random numbers.  As it turns out, it did not.  I can
-	// have *10* goroutines, and only one CPU core will spike to 100%.
-	// So I learned something new about how random numbers are generated.
-	//
 	for i := 0; i < num_goroutines; i++ {
-		random_struct := random_struct{false}
+		seed := strconv.FormatInt(time.Now().UnixNano(), 10)
+		random_struct := random_struct{seed, 0}
 		go random_struct.intNChannel(in, out)
 	}
 
 	//
 	// Now stuff our input channel with all of our requests.
+	// We'll do it in chunks so as not to destroy our CPUs.
+	// See my blog post at http://www.dmuth.org/node/1414/multi-core-cpu-performance-google-go
+	// for a further explanation.
 	//
-	for i := 0; i<num_numbers; i++ {
-		in <- max
+	num_left := uint64(num_numbers)
+	chunk_size := uint64(10000)
+
+	for {
+		if (num_left < chunk_size) {
+			chunk_size = num_left
+		}
+
+		num_left -= chunk_size
+
+		var args []uint64
+		args = append(args, max, chunk_size)
+		in <- args
+
+		if (num_left <= 0) {
+			break
+		}
+
 	}
 
 } // End of IntnBackground()
-
 
 

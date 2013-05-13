@@ -10,18 +10,20 @@ package monte
 //import "log"
 import "math"
 
+import "../args"
 import "../random"
+import "../random_md5"
 
 
 //
 // Our data structure
 //
 type monte struct {
-	size int // Size of the grid we're creating
+	size uint64 // Size of the grid we're creating
 	size_squared int64 // Size squared, for checking with the Pythagorean thereom
 	num_points int
 	num_points_left int
-	num_cores int
+	num_goroutines int
 	num_points_in_circle int
 	num_points_not_in_circle int
 }
@@ -32,14 +34,16 @@ type monte struct {
 * 
 * @param {int} size How big is our grid for Monte Carlo?
 * @param {int} num_numbers How many points to do we want to generate?
-* @param {int} num_cores How many cores do we want to use for each major task?
+* @param {int} num_goroutines How many goroutines do we want to use 
+*	for generating random numbers?
 * 
 * @return {monte} Our structure
 */
-func New(size int, num_points int, num_cores int) (monte) {
+func New(size uint64, num_points int, num_goroutines int) (monte) {
 
 	size_squared := math.Pow(float64(size), 2)
-	retval := monte{size, int64(size_squared), num_points, num_points, num_cores, 0, 0}
+	retval := monte{size, int64(size_squared), num_points, 
+		num_points, num_goroutines, 0, 0}
 
 	return retval
 
@@ -49,16 +53,16 @@ func New(size int, num_points int, num_cores int) (monte) {
 /**
 * Our main entry point.
 */
-func (m monte) Main() float64 {
+func (m monte) Main(config args.Config) float64 {
 
-	out_check_points := make(chan int)
-	in_check_points := make(chan []int)
+	out_check_points := make(chan uint64)
+	in_check_points := make(chan []uint64)
 	in_calculate_pi := make(chan bool)
 	out := make(chan float64)
 
 
 	//
-	// Goroutine to create get points from random numbers
+	// Goroutine to create points from random numbers
 	//
 	go m.getPoints(out_check_points, in_check_points)
 
@@ -69,7 +73,7 @@ func (m monte) Main() float64 {
 	go m.checkPoints(in_check_points, in_calculate_pi)
 
 	//
-	// Goroutine to calculate our value of Pi
+	// Goroutine to calculate our value of Pi when we're done.
 	//
 	go m.calculatePi(in_calculate_pi, out)
 
@@ -77,7 +81,13 @@ func (m monte) Main() float64 {
 	// Start generating our points!
 	//
 	num_numbers := m.num_points * 2;
-	random.IntnBackground(out_check_points, m.size, num_numbers, m.num_cores)
+	if (!config.Random_md5) {
+		random.IntnBackground(out_check_points, m.size, num_numbers, 
+			m.num_goroutines)
+	} else {
+		random_md5.IntnBackground(out_check_points, m.size, num_numbers, 
+			m.num_goroutines)
+	}
 
 	//
 	// Read our value of Pi when we're all done!
@@ -93,13 +103,13 @@ func (m monte) Main() float64 {
 * @param {chan} in Inbound channel which feeds us random numbers.
 * @param {chan} out Outbound channel which takes an array of two points.
 */
-func (m monte) getPoints(in chan int, out chan []int) {
+func (m monte) getPoints(in chan uint64, out chan []uint64) {
 
 	for {
 		x := <- in
 		y := <- in
 
-		var points []int
+		var points []uint64
 		points = append(points, x)
 		points = append(points, y)
 		out <- points;
@@ -118,7 +128,7 @@ func (m monte) getPoints(in chan int, out chan []int) {
 *	to perform the Pi calculation.
 *
 */
-func (m *monte) checkPoints(in chan []int, out chan bool) {
+func (m *monte) checkPoints(in chan []uint64, out chan bool) {
 
 	for {
 		points := <- in

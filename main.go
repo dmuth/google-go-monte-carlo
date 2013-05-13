@@ -5,8 +5,8 @@ package main
 // Load Google Go packages
 //
 import "fmt"
-import "strconv"
-//import "time"
+import "runtime"
+
 
 //
 // Load packages local to this project
@@ -20,19 +20,24 @@ import "./src/monte"
 */
 func main() {
 
-	params := args.ParseArgs()
-	fmt.Printf("Params: %s\n", params)
+	//
+	// Crank up the number of processors used
+	//
+	numCPU := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCPU)
 
-	size, _ := strconv.Atoi(params["size"])
-	num_points, _ := strconv.Atoi(params["num_points"])
-	num_cores, _ := strconv.Atoi(params["num_cores"])
+	config := args.ParseArgs()
 
 	/* TODO:
+	- modify messages for MD5 to be [max, num random numbers]
+	- param for chunk size
+	- modify messages for random to [max, num random numbers]
 		- caching of point matches
+	- change function to calculate Pi to do it manually when we're done
 	*/
 
-	monte := monte.New(size, num_points, num_cores)
-	pi := monte.Main()
+	monte := monte.New(config.Size, config.Num_points, config.Num_goroutines)
+	pi := monte.Main(config)
 
 	fmt.Println("Pi is:", pi)
 

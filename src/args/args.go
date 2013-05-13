@@ -12,7 +12,7 @@ import "os"
 * Our config structure to hold whatever we parse
 */
 type Config struct {
-	Size int
+	Size uint64
 	Num_points int
 	Num_goroutines int
 	Random_md5 bool
@@ -27,7 +27,7 @@ func ParseArgs() (Config) {
 
 	config := Config{}
 
-	flag.IntVar(&config.Size, "size", 10, "How big to make the grid for the circle quadrant")
+	flag.Uint64Var(&config.Size, "size", 10, "How big to make the grid for the circle quadrant")
 	flag.IntVar(&config.Num_points, "num-points", 10, "How many points to plot?")
 	flag.IntVar(&config.Num_goroutines, "num-goroutines", 10, "How many goroutines to use for generating random numbers")
 	flag.BoolVar(&config.Random_md5, "random-md5", false, "Set to use MD5 for faux random number generation")

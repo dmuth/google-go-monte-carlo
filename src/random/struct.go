@@ -29,7 +29,7 @@ type random_struct struct {
 *	read is the maximum random number.
 * @param {chan int} out The channel to write results out to.
 */
-func (r random_struct) intNChannel(in chan int, out chan int) {
+func (r random_struct) intNChannel(in chan uint64, out chan uint64) {
 
 	//timeout := time.Millisecond * 100
 
@@ -58,14 +58,14 @@ func (r random_struct) intNChannel(in chan int, out chan int) {
 * @param {integer} n The maximum random number.
 * @return {integer} retval The random value
 */
-func (r *random_struct) intn(n int) (retval int) {
+func (r *random_struct) intn(n uint64) (retval uint64) {
 
 	if (!r.seeded) {
 		rand.Seed(time.Now().UnixNano())
 		r.seeded = true
 	}
 
-	retval = rand.Intn(n)
+	retval = uint64(rand.Int63n(int64(n)))
 	return(retval)
 
 } // End of Intn()
