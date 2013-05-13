@@ -7,7 +7,7 @@
 */
 package monte
 
-//import "log"
+//import "fmt"
 import "math"
 
 import "../args"
@@ -56,7 +56,6 @@ func New(size uint64, num_points int, num_goroutines int) (monte) {
 func (m monte) Main(config args.Config) float64 {
 
 	out_check_points := make(chan uint64)
-	in_check_points := make(chan []uint64)
 	in_calculate_pi := make(chan bool)
 	out := make(chan float64)
 
@@ -64,13 +63,7 @@ func (m monte) Main(config args.Config) float64 {
 	//
 	// Goroutine to create points from random numbers
 	//
-	go m.getPoints(out_check_points, in_check_points)
-
-	//
-	// Goroutine to check each point and determine if it's in the
-	// circle or not.
-	//
-	go m.checkPoints(in_check_points, in_calculate_pi)
+	go m.getPoints(out_check_points, in_calculate_pi)
 
 	//
 	// Goroutine to calculate our value of Pi when we're done.
@@ -103,37 +96,12 @@ func (m monte) Main(config args.Config) float64 {
 * @param {chan} in Inbound channel which feeds us random numbers.
 * @param {chan} out Outbound channel which takes an array of two points.
 */
-func (m monte) getPoints(in chan uint64, out chan []uint64) {
+func (m *monte) getPoints(in chan uint64, out chan bool) {
 
 	for {
 		x := <- in
 		y := <- in
 
-		var points []uint64
-		points = append(points, x)
-		points = append(points, y)
-		out <- points;
-
-	}
-
-}
-
-
-/**
-* Continuously read sets of points from our channel and check to see if 
-*	each is in the circle.
-*
-* @param {chan} in Our channel that we're reading sets of points from
-* @param {chan} out The channel we're writing to which signals calculatePi() 
-*	to perform the Pi calculation.
-*
-*/
-func (m *monte) checkPoints(in chan []uint64, out chan bool) {
-
-	for {
-		points := <- in
-		x := points[0]
-		y := points[1]
 		x2 := math.Pow(float64(x), 2)
 		y2 := math.Pow(float64(y), 2)
 		c := int64(x2 + y2)
@@ -148,7 +116,7 @@ func (m *monte) checkPoints(in chan []uint64, out chan bool) {
 
 	}
 
-} // End of checkPoints()
+}
 
 
 /**
