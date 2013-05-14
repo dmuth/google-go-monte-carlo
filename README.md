@@ -8,7 +8,8 @@ Performance
 ===========
 
 All tests were done on my iMac with an Intel i7 CPU running at 3.4 Ghz.
-It has 4 physical cores and each core has 2 virtual cores on it.  
+It has 4 physical cores and each core has 2 virtual cores.
+
 Since Go saw the number of CPUs as 8, that's the setting I used.
 Instead of the actual random number generator, I used my MD5 faux 
 random number generator. This helped me separate user CPU load from 
@@ -31,6 +32,8 @@ their improvements when running `go run ./main.go --size 100 --num-points 100000
 	of a random number at a time, saved yet another 1 million channel writes: 2.5 seconds
 - Modified intNChannel() to return arrays of array in a single message.
 	When done in chunks of 10000 this is only 100 channel writes, 
-	saving 999,900 writes: 1.6 seconds
+	saving 999,900 writes: *1.6 seconds*
 
+
+tl;dr Careful use of messages boosted script performance by 88%
 
