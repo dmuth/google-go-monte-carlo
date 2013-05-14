@@ -14,7 +14,9 @@ import "time"
 * @param {int} num_numbers How many random numbers to generate?
 * @param {int} num_goroutines How many goroutines to use?
 */
-func IntnBackground(out chan []uint64, max uint64, num_numbers int, num_goroutines int) {
+func IntnBackground(out chan [][]uint64, max uint64, num_numbers int, 
+	chunk_size uint64,
+	num_goroutines int) {
 
 	in := make(chan []uint64)
 
@@ -34,7 +36,6 @@ func IntnBackground(out chan []uint64, max uint64, num_numbers int, num_goroutin
 	// for a further explanation.
 	//
 	num_left := uint64(num_numbers)
-	chunk_size := uint64(10000)
 
 	for {
 		if (num_left < chunk_size) {

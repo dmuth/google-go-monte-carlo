@@ -36,7 +36,7 @@ type monte struct {
 * @param {int} num_numbers How many points to do we want to generate?
 * @param {int} num_goroutines How many goroutines do we want to use 
 *	for generating random numbers?
-* 
+*
 * @return {monte} Our structure
 */
 func New(size uint64, num_points int, num_goroutines int) (monte) {
@@ -55,7 +55,7 @@ func New(size uint64, num_points int, num_goroutines int) (monte) {
 */
 func (m monte) Main(config args.Config) float64 {
 
-	out_check_points := make(chan []uint64)
+	out_check_points := make(chan [][]uint64)
 	pi := make(chan float64)
 
 
@@ -70,10 +70,14 @@ func (m monte) Main(config args.Config) float64 {
 	num_numbers := m.num_points * 2;
 	if (!config.Random_md5) {
 		random.IntnBackground(out_check_points, m.size, num_numbers, 
+			config.Chunk_size,
 			m.num_goroutines)
+
 	} else {
 		random_md5.IntnBackground(out_check_points, m.size, num_numbers, 
+			config.Chunk_size,
 			m.num_goroutines)
+
 	}
 
 	//
@@ -91,32 +95,38 @@ func (m monte) Main(config args.Config) float64 {
 * @param {chan} in Inbound channel which feeds us random numbers.
 * @param {chan} out Outbound channel which takes an array of two points.
 */
-func (m *monte) getPoints(in chan []uint64, out chan float64) {
+func (m *monte) getPoints(in chan [][]uint64, out chan float64) {
 
 	for {
 		values := <- in
-		x := values[0]
-		y := values[1]
 
-		x2 := math.Pow(float64(x), 2)
-		y2 := math.Pow(float64(y), 2)
-		c := int64(x2 + y2)
+		for i:=0; i<len(values); i++ {
 
-		if (c <= m.size_squared) {
-			m.num_points_in_circle++
-		} else {
-			m.num_points_not_in_circle++
-		}
+			value := values[i]
+			x := value[0]
+			y := value[1]
 
-		m.num_points_left--
-		if (m.num_points_left == 0) {
-			pi := m.calculatePi()
-			out <- pi
+			x2 := math.Pow(float64(x), 2)
+			y2 := math.Pow(float64(y), 2)
+			c := int64(x2 + y2)
+
+			if (c <= m.size_squared) {
+				m.num_points_in_circle++
+			} else {
+				m.num_points_not_in_circle++
+			}
+
+			m.num_points_left--
+			if (m.num_points_left == 0) {
+				pi := m.calculatePi()
+				out <- pi
+			}
+
 		}
 
 	}
 
-}
+} // End of getPoints()
 
 
 /**

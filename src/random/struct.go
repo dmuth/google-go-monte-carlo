@@ -29,24 +29,30 @@ type random_struct struct {
 *	read is an array of the max value and number of values we want.
 * @param {chan int} out The channel to write results out to.
 */
-func (r random_struct) intNChannel(in chan []uint64, out chan []uint64) {
+func (r random_struct) intNChannel(in chan []uint64, out chan [][]uint64) {
+
+	var values []uint64
+	var retval [][]uint64
 
 	for {
 
 		args := <- in
 		max := args[0]
 		num_random := args[1]
-		var values []uint64
 
 		for i:=uint64(0); i<num_random; i++ {
 			num := r.intn(max)
 			//fmt.Println("max, result:", max, num)
 			values = append(values, num)
 			if (len(values) == 2) {
-				out <- values
+				retval = append(retval, values)
 				values = []uint64{}
 			}
 		}
+
+		out <- retval
+		retval = [][]uint64{}
+
 	}
 
 } // End of intNChannel()
