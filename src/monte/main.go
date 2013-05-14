@@ -55,7 +55,7 @@ func New(size uint64, num_points int, num_goroutines int) (monte) {
 */
 func (m monte) Main(config args.Config) float64 {
 
-	out_check_points := make(chan uint64)
+	out_check_points := make(chan []uint64)
 	pi := make(chan float64)
 
 
@@ -91,11 +91,12 @@ func (m monte) Main(config args.Config) float64 {
 * @param {chan} in Inbound channel which feeds us random numbers.
 * @param {chan} out Outbound channel which takes an array of two points.
 */
-func (m *monte) getPoints(in chan uint64, out chan float64) {
+func (m *monte) getPoints(in chan []uint64, out chan float64) {
 
 	for {
-		x := <- in
-		y := <- in
+		values := <- in
+		x := values[0]
+		y := values[1]
 
 		x2 := math.Pow(float64(x), 2)
 		y2 := math.Pow(float64(y), 2)
@@ -112,7 +113,6 @@ func (m *monte) getPoints(in chan uint64, out chan float64) {
 			pi := m.calculatePi()
 			out <- pi
 		}
-
 
 	}
 

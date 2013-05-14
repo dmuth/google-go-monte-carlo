@@ -74,20 +74,27 @@ func (r *random_struct) intn(max uint64) (retval uint64) {
 * it back out.
 *
 * @param {chan int} in Our channel to read in requests. Each value 
-*	read is the maximum random number.
-* @param {chan int} out The channel to write results out to.
+*	read is an array of the maximum random number and the number of 
+*	random numbers we want.
+* @param {chan int} out The channel to write results out to in groups of 2
 */
-func (r *random_struct) intNChannel(in chan []uint64, out chan uint64) {
+func (r *random_struct) intNChannel(in chan []uint64, out chan []uint64) {
 
 	for {
 
 		args := <- in
 		max := args[0]
 		num_random := args[1]
+		var values []uint64
+
 		for i:=uint64(0); i<num_random; i++ {
 			num := r.intn(max)
 			//fmt.Println("max, result:", max, num)
-			out <- num
+			values = append(values, num)
+			if (len(values) == 2) {
+				out <- values
+				values = []uint64{}
+			}
 		}
 
 	}

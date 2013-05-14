@@ -26,28 +26,27 @@ type random_struct struct {
 * it back out.
 *
 * @param {chan int} in Our channel to read in requests. Each value 
-*	read is the maximum random number.
+*	read is an array of the max value and number of values we want.
 * @param {chan int} out The channel to write results out to.
 */
-func (r random_struct) intNChannel(in chan uint64, out chan uint64) {
+func (r random_struct) intNChannel(in chan []uint64, out chan []uint64) {
 
-	//timeout := time.Millisecond * 100
-
-	//
-	// This will loop forever
-	//
 	for {
 
-		select {
-			case max := <-in:
-				i := r.intn(max)
-				out <- i
+		args := <- in
+		max := args[0]
+		num_random := args[1]
+		var values []uint64
 
-			//case <-time.After(timeout):
-			//	log.Println("TIMEOUT")
-
+		for i:=uint64(0); i<num_random; i++ {
+			num := r.intn(max)
+			//fmt.Println("max, result:", max, num)
+			values = append(values, num)
+			if (len(values) == 2) {
+				out <- values
+				values = []uint64{}
+			}
 		}
-
 	}
 
 } // End of intNChannel()
