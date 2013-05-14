@@ -4,6 +4,17 @@ google-go-monte-carlo
 Code written in Google Go as a way to "get my feet wet" with the language.
 
 
+Usage
+=====
+
+`go run ./main.go` 
+`--chunk-size=size`
+`--num-goroutines num`
+`-size (size of grid)`
+`-random-md5 (use the faux MD5 random number generator)`
+`-num-points number_of_random_numbers`
+
+
 Performance
 ===========
 
