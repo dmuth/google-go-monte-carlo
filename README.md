@@ -32,7 +32,7 @@ their improvements when running `go run ./main.go --size 100 --num-points 100000
 	of a random number at a time, saved yet another 1 million channel writes: 2.5 seconds
 - Modified intNChannel() to return arrays of array in a single message.
 	When done in chunks of 10000 this is only 100 channel writes, 
-	saving 999,900 writes: *1.6 seconds*
+	saving 999,900 writes: **1.6 seconds**
 
 
 tl;dr Careful use of messages boosted script performance by 88%
