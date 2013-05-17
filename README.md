@@ -7,13 +7,13 @@ Code written in Google Go as a way to "get my feet wet" with the language.
 Usage
 =====
 
-`go run ./main.go` 
-`--chunk-size=size`
-`--num-goroutines num`
-`-size (size of grid)`
-`-random-md5 (use the faux MD5 random number generator)`
-`-num-points number_of_random_numbers`
+    go run ./main.go [--chunk-size size] [--num-goroutines num] [--size size] [--random-md5] [--num-points num]
 
+    --chunk-size How many random numbers to send across channels at a time. Higher == more efficiency
+    --num-goroutines How many goroutines generating random numbers?
+    --size How big to make the square where points will be plotted?
+    --num-points - How many random numbers to generate?
+    --random-md5 Use the MD5 faux random number generator that I wrote
 
 Performance
 ===========
