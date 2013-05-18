@@ -5,7 +5,8 @@ package random_md5
 import "bytes"
 import "crypto/md5"
 import "encoding/binary"
-//import "fmt"
+
+import log "github.com/dmuth/google-go-log4go"
 
 
 type random_struct struct {
@@ -79,6 +80,8 @@ func (r *random_struct) intn(max uint64) (retval uint64) {
 * @param {chan int} out The channel to write results out to in groups of 2
 */
 func (r *random_struct) intNChannel(in chan []uint64, out chan [][]uint64) {
+
+	log.Info("Spawned intNChannel()")
 
 	var values []uint64
 	var retval [][]uint64

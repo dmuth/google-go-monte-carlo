@@ -1,6 +1,8 @@
 
 package random
 
+import log "github.com/dmuth/google-go-log4go"
+
 
 /**
 * Create background processes and pass out channels into them.
@@ -13,6 +15,8 @@ package random
 func IntnBackground(out chan [][]uint64, max uint64, num_numbers int, 
 	chunk_size uint64,
 	num_goroutines int) {
+
+	log.Info("Starting background number generation...")
 
 	in := make(chan []uint64)
 

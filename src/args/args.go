@@ -8,6 +8,8 @@ import "flag"
 import "fmt"
 import "os"
 
+import log "github.com/dmuth/google-go-log4go"
+
 
 /**
 * Our config structure to hold whatever we parse
@@ -34,6 +36,7 @@ func ParseArgs() (Config) {
 	flag.IntVar(&config.Num_goroutines, "num-goroutines", 10, "How many goroutines to use for generating random numbers")
 	flag.BoolVar(&config.Random_md5, "random-md5", false, "Set to use MD5 for faux random number generation")
 	flag.Uint64Var(&config.Chunk_size, "chunk-size", 10000, "Create random numbers in batches of this size (must be a multiple of 2)")
+	debug_level := flag.String("debug-level", "info", "Set our logging level. Can be: error, warn, info, debug, or trace")
 	help := flag.Bool("help", false, "test2")
 	h := flag.Bool("h", false, "To get this help")
 	flag.Parse()
@@ -47,6 +50,10 @@ func ParseArgs() (Config) {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
+
+	log.SetLevelString(*debug_level)
+
+	log.Debug("Args: " + fmt.Sprint(config))
 
 	return(config)
 

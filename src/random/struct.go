@@ -1,9 +1,10 @@
 
 package random
 
-//import "fmt"
 import "math/rand"
 import "time"
+
+import log "github.com/dmuth/google-go-log4go"
 
 
 //
@@ -30,6 +31,8 @@ type random_struct struct {
 * @param {chan int} out The channel to write results out to.
 */
 func (r random_struct) intNChannel(in chan []uint64, out chan [][]uint64) {
+
+	log.Info("Spawned intNChannel()")
 
 	var values []uint64
 	var retval [][]uint64

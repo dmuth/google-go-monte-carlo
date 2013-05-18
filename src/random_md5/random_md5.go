@@ -1,9 +1,10 @@
 
 package random_md5
 
-//import "fmt"
 import "strconv"
 import "time"
+
+import log "github.com/dmuth/google-go-log4go"
 
 
 /**
@@ -17,6 +18,8 @@ import "time"
 func IntnBackground(out chan [][]uint64, max uint64, num_numbers int, 
 	chunk_size uint64,
 	num_goroutines int) {
+
+	log.Info("Starting background number generation using MD5...")
 
 	in := make(chan []uint64)
 

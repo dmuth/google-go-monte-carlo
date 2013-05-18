@@ -7,8 +7,9 @@
 */
 package monte
 
-//import "fmt"
 import "math"
+
+import log "github.com/dmuth/google-go-log4go"
 
 import "../args"
 import "../random"
@@ -45,7 +46,7 @@ func New(size uint64, num_points int, num_goroutines int) (monte) {
 	retval := monte{size, int64(size_squared), num_points, 
 		num_points, num_goroutines, 0, 0}
 
-	return retval
+	return(retval)
 
 } // End of New()
 
@@ -58,7 +59,6 @@ func (m monte) Main(config args.Config) float64 {
 	out_check_points := make(chan [][]uint64)
 	pi := make(chan float64)
 
-
 	//
 	// Goroutine to create points from random numbers
 	//
@@ -67,6 +67,7 @@ func (m monte) Main(config args.Config) float64 {
 	//
 	// Start generating our points!
 	//
+	log.Info("Starting to generate our points...")
 	num_numbers := m.num_points * 2;
 	if (!config.Random_md5) {
 		random.IntnBackground(out_check_points, m.size, num_numbers, 
@@ -80,10 +81,14 @@ func (m monte) Main(config args.Config) float64 {
 
 	}
 
+	log.Info("Just hanging out, waiting for things to finish up...")
+
 	//
 	// Read our value of Pi when we're all done!
 	//
 	retval := <- pi
+
+	log.Info("All done!")
 
 	return(retval)
 
@@ -97,6 +102,7 @@ func (m monte) Main(config args.Config) float64 {
 */
 func (m *monte) getPoints(in chan [][]uint64, out chan float64) {
 
+	log.Info("Spawned getPoints()")
 	for {
 		values := <- in
 

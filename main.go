@@ -7,6 +7,8 @@ package main
 import "fmt"
 import "runtime"
 
+import log "github.com/dmuth/google-go-log4go"
+
 
 //
 // Load packages local to this project
@@ -20,11 +22,14 @@ import "./src/monte"
 */
 func main() {
 
+	log.SetDisplayTime(true)
+
 	//
 	// Crank up the number of processors used
 	//
 	numCPU := runtime.NumCPU()
 	runtime.GOMAXPROCS(numCPU)
+	log.Info("Num CPUs: " + fmt.Sprint(numCPU))
 
 	config := args.ParseArgs()
 
